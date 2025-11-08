@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -7,7 +7,10 @@ import {
   TouchableOpacity, 
   Alert, 
   Image,
-  Dimensions 
+  Dimensions,
+  Modal,
+  TextInput,
+  Platform,
 } from 'react-native';
 import TextField from '../components/TextField';
 import PrimaryButton from '../components/PrimaryButton';
@@ -107,6 +110,9 @@ export default function AddPropertyScreen({ navigation, route }) {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [imageUrlError, setImageUrlError] = useState(null);
 
   const steps = [
     { number: 1, title: 'Información Básica', icon: '📝' },
@@ -203,9 +209,44 @@ export default function AddPropertyScreen({ navigation, route }) {
     }
   };
 
+  const openImageModal = () => {
+    setImageUrlInput('');
+    setImageUrlError(null);
+    setShowImageModal(true);
+  };
+
+  const handleImageAdd = () => {
+    if (formData.images.length >= 10) {
+      setImageUrlError('Puedes cargar hasta 10 imágenes por propiedad.');
+      return;
+    }
+
+    const url = imageUrlInput.trim();
+    if (!url) {
+      setImageUrlError('Ingresa la URL de la imagen.');
+      return;
+    }
+
+    const isValid = /^https?:\/\//i.test(url);
+    if (!isValid) {
+      setImageUrlError('La URL debe comenzar con http:// o https://');
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, url],
+    }));
+    setShowImageModal(false);
+  };
+
   const addImage = () => {
-    // Aquí implementarías la selección de imágenes
-    Alert.alert('Agregar Imagen', 'Funcionalidad de cámara/galería pendiente');
+    if (Platform.OS === 'web') {
+      openImageModal();
+      return;
+    }
+
+    openImageModal();
   };
 
   const removeImage = (index) => {
@@ -597,6 +638,43 @@ export default function AddPropertyScreen({ navigation, route }) {
           />
         )}
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent
+        visible={showImageModal}
+        onRequestClose={() => setShowImageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Agregar imagen</Text>
+            <Text style={styles.modalSubtitle}>
+              Ingresa una URL pública de imagen (por ejemplo, de un sitio de fotos o un hosting propio).
+            </Text>
+            <TextInput
+              placeholder="https://..."
+              placeholderTextColor={colors.muted}
+              value={imageUrlInput}
+              onChangeText={(text) => {
+                setImageUrlInput(text);
+                setImageUrlError(null);
+              }}
+              autoCapitalize="none"
+              keyboardType="url"
+              style={styles.modalInput}
+            />
+            {imageUrlError ? <Text style={styles.modalError}>{imageUrlError}</Text> : null}
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalSecondaryButton} onPress={() => setShowImageModal(false)}>
+                <Text style={styles.modalSecondaryText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalPrimaryButton} onPress={handleImageAdd}>
+                <Text style={styles.modalPrimaryText}>Agregar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -914,5 +992,80 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.card,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 16,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: colors.text,
+    marginBottom: 8,
+  },
+  modalError: {
+    color: colors.danger,
+    fontSize: 13,
+    marginBottom: 12,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+  },
+  modalSecondaryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    backgroundColor: colors.bgSecondary,
+  },
+  modalSecondaryText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    fontWeight: '600',
+  },
+  modalPrimaryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: colors.primary,
+    marginLeft: 12,
+  },
+  modalPrimaryText: {
+    fontSize: 15,
+    color: colors.card,
+    fontWeight: '700',
   },
 });
