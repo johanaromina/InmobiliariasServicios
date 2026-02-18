@@ -14,16 +14,17 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build outputs / caches
+**/coverage/
 **/dist/
 **/build/
 **/.cache/
 **/.expo/
 **/.expo-shared/
 **/.next/
+**/.turbo/
 
 # OS / editor
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-

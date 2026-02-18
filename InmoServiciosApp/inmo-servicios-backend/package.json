@@ -1,0 +1,27 @@
+{
+  "name": "inmo-servicios-backend",
+  "version": "1.0.0",
+  "description": "Backend API para InmoServiciosApp",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "seed": "node db/seed_adaptado.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "mysql2": "^3.6.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-validator": "^7.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["express", "mysql", "api", "inmobiliaria", "servicios"],
+  "author": "Sergio TFG",
+  "license": "MIT"
+}
