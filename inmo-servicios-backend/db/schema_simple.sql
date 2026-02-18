@@ -1,0 +1,1 @@
+-- Esquema simple para inmobiliaria_mvp
